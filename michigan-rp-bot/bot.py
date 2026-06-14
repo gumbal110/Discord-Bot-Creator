@@ -12,8 +12,10 @@ from discord.ext import commands
 import json
 import os
 import logging
+import asyncio
 from datetime import datetime, timezone
 from pathlib import Path
+from aiohttp import web
 
 # ---------------------------------------------------------------------------
 # Configuración del sistema de logs
@@ -657,12 +659,33 @@ async def error_permisos(
 
 
 # ---------------------------------------------------------------------------
+# Servidor keep-alive (evita que Replit duerma el proceso por inactividad)
+# ---------------------------------------------------------------------------
+
+async def keep_alive(puerto: int = 8080):
+    """
+    Levanta un servidor HTTP mínimo en el puerto indicado.
+    Responde "Bot activo" en GET / para que el proceso no sea
+    terminado por inactividad en plataformas de hosting.
+    """
+    async def handle(request):
+        return web.Response(text="Bot activo")
+
+    servidor = web.Application()
+    servidor.router.add_get("/", handle)
+    runner = web.AppRunner(servidor)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", puerto)
+    await site.start()
+    log.info("Servidor keep-alive corriendo en el puerto %s", puerto)
+
+
+# ---------------------------------------------------------------------------
 # Punto de entrada
 # ---------------------------------------------------------------------------
 
-if __name__ == "__main__":
-    # El token se lee desde la variable de entorno DISCORD_TOKEN.
-    # Nunca escribas el token directamente en el código.
+async def main():
+    """Inicia el servidor keep-alive y el bot de forma concurrente."""
     token = os.environ.get("DISCORD_TOKEN")
     if not token:
         log.critical(
@@ -671,4 +694,9 @@ if __name__ == "__main__":
         )
         raise SystemExit(1)
 
-    bot.run(token, log_handler=None)
+    await keep_alive()
+    await bot.start(token)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
