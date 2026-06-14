@@ -1,11 +1,8 @@
 {
   "_comentario": "Michigan RP Welcome Bot — Archivo de Configuración",
   "_nota": "El token va en la variable de entorno DISCORD_TOKEN, nunca aquí.",
-
   "welcome_channel_id": "REEMPLAZA_CON_EL_ID_DE_TU_CANAL",
-
   "mensaje_estado": "Michigan RP | Nuevos Miembros Llegando",
-
   "welcome_embed": {
     "titulo": "¡Bienvenido a {server}, {username}! 🎉",
     "descripcion": "Hola {mention}, ¡eres nuestro miembro número **{member_count}**!\n\nTómate un momento para leer las reglas y configurar tu perfil. Esperamos que disfrutes tu estancia aquí.",
@@ -18,7 +15,6 @@
     "texto_pie": "Michigan RP • Se unió a {server}",
     "url_icono_pie": "https://i.imgur.com/your-server-icon.png"
   },
-
   "dm_embed": {
     "titulo": "¡Bienvenido a Michigan RP, {username}!",
     "descripcion": "Hola {mention} — ¡gracias por unirte a **{server}**!\n\nAquí tienes todo lo que necesitas para comenzar:\n\n**📋 Lee las Reglas** — Para que todos la pasemos bien.\n**🎭 Elige tus Roles** — Ve a #roles y selecciona tus intereses.\n**💬 Preséntate** — ¡Saluda en #presentaciones!\n\nSi tienes alguna pregunta, nuestro equipo de staff está siempre disponible. ¡Disfruta tu estadía!",

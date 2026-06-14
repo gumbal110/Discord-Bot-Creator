@@ -278,6 +278,117 @@ class ModalEditarDM(discord.ui.Modal, title="✏️ Editar Mensaje de DM"):
         log.info("Embed de DM editado por %s", interaction.user)
 
 
+class ModalImagenesBienvenida(discord.ui.Modal, title="🖼️ Imágenes — Canal de Bienvenida"):
+    """Formulario para editar las URLs de imágenes del embed de bienvenida."""
+
+    url_miniatura = discord.ui.TextInput(
+        label="Miniatura (esquina superior derecha)",
+        placeholder="https://i.imgur.com/tu-icono.png",
+        required=False,
+        max_length=500,
+    )
+    url_imagen = discord.ui.TextInput(
+        label="Banner grande (parte inferior del embed)",
+        placeholder="https://i.imgur.com/tu-banner.png",
+        required=False,
+        max_length=500,
+    )
+    url_icono_autor = discord.ui.TextInput(
+        label="Ícono del autor (junto al nombre del autor)",
+        placeholder="https://i.imgur.com/tu-icono.png",
+        required=False,
+        max_length=500,
+    )
+    url_icono_pie = discord.ui.TextInput(
+        label="Ícono del pie de página",
+        placeholder="https://i.imgur.com/tu-icono.png",
+        required=False,
+        max_length=500,
+    )
+
+    def __init__(self, config_actual: dict):
+        super().__init__()
+        embed = config_actual.get("welcome_embed", {})
+        self.url_miniatura.default = embed.get("url_miniatura", "")
+        self.url_imagen.default = embed.get("url_imagen", "")
+        self.url_icono_autor.default = embed.get("url_icono_autor", "")
+        self.url_icono_pie.default = embed.get("url_icono_pie", "")
+        self._config = config_actual
+
+    async def on_submit(self, interaction: discord.Interaction):
+        embed_cfg = self._config.setdefault("welcome_embed", {})
+
+        # Guardar solo si el campo tiene valor; si se deja vacío se borra
+        embed_cfg["url_miniatura"] = self.url_miniatura.value
+        embed_cfg["url_imagen"] = self.url_imagen.value
+        embed_cfg["url_icono_autor"] = self.url_icono_autor.value
+        embed_cfg["url_icono_pie"] = self.url_icono_pie.value
+
+        guardar_config(self._config)
+        interaction.client.config = self._config
+
+        await interaction.response.send_message(
+            "✅ **Imágenes de bienvenida actualizadas.** Usa `/testbienvenida` para previsualizarlas.",
+            ephemeral=True,
+        )
+        log.info("Imágenes del embed de bienvenida editadas por %s", interaction.user)
+
+
+class ModalImagenesDM(discord.ui.Modal, title="🖼️ Imágenes — DM de Bienvenida"):
+    """Formulario para editar las URLs de imágenes del embed de DM."""
+
+    url_miniatura = discord.ui.TextInput(
+        label="Miniatura (esquina superior derecha)",
+        placeholder="https://i.imgur.com/tu-icono.png",
+        required=False,
+        max_length=500,
+    )
+    url_imagen = discord.ui.TextInput(
+        label="Banner grande (parte inferior del embed)",
+        placeholder="https://i.imgur.com/tu-banner.png",
+        required=False,
+        max_length=500,
+    )
+    url_icono_autor = discord.ui.TextInput(
+        label="Ícono del autor (junto al nombre del autor)",
+        placeholder="https://i.imgur.com/tu-icono.png",
+        required=False,
+        max_length=500,
+    )
+    url_icono_pie = discord.ui.TextInput(
+        label="Ícono del pie de página",
+        placeholder="https://i.imgur.com/tu-icono.png",
+        required=False,
+        max_length=500,
+    )
+
+    def __init__(self, config_actual: dict):
+        super().__init__()
+        embed = config_actual.get("dm_embed", {})
+        self.url_miniatura.default = embed.get("url_miniatura", "")
+        self.url_imagen.default = embed.get("url_imagen", "")
+        self.url_icono_autor.default = embed.get("url_icono_autor", "")
+        self.url_icono_pie.default = embed.get("url_icono_pie", "")
+        self._config = config_actual
+
+    async def on_submit(self, interaction: discord.Interaction):
+        embed_cfg = self._config.setdefault("dm_embed", {})
+
+        embed_cfg["url_miniatura"] = self.url_miniatura.value
+        embed_cfg["url_imagen"] = self.url_imagen.value
+        embed_cfg["url_icono_autor"] = self.url_icono_autor.value
+        embed_cfg["url_icono_pie"] = self.url_icono_pie.value
+
+        guardar_config(self._config)
+        interaction.client.config = self._config
+
+        await interaction.response.send_message(
+            "✅ **Imágenes del DM actualizadas.** Usa `/testdm` para previsualizarlas.",
+            ephemeral=True,
+        )
+        log.info("Imágenes del embed de DM editadas por %s", interaction.user)
+
+
 # ---------------------------------------------------------------------------
 # Configuración del bot
 # ---------------------------------------------------------------------------
@@ -427,6 +538,22 @@ async def editardm(interaction: discord.Interaction) -> None:
     await interaction.response.send_modal(modal)
 
 
+@bot.tree.command(name="imagenesbienvenida", description="Edita las imágenes del embed del canal de bienvenida.")
+@app_commands.checks.has_permissions(manage_guild=True)
+async def imagenesbienvenida(interaction: discord.Interaction) -> None:
+    """/imagenesbienvenida — abre un formulario para editar las URLs de imágenes del embed de bienvenida."""
+    modal = ModalImagenesBienvenida(bot.config)
+    await interaction.response.send_modal(modal)
+
+
+@bot.tree.command(name="imagenesdm", description="Edita las imágenes del embed de DM de bienvenida.")
+@app_commands.checks.has_permissions(manage_guild=True)
+async def imagenesdm(interaction: discord.Interaction) -> None:
+    """/imagenesdm — abre un formulario para editar las URLs de imágenes del embed de DM."""
+    modal = ModalImagenesDM(bot.config)
+    await interaction.response.send_modal(modal)
+
+
 @bot.tree.command(name="recargar", description="Recarga config.json sin reiniciar el bot.")
 @app_commands.checks.has_permissions(manage_guild=True)
 async def recargar(interaction: discord.Interaction) -> None:
@@ -460,8 +587,10 @@ async def ayuda(interaction: discord.Interaction) -> None:
         name="🔧 Administración (requiere Gestionar Servidor)",
         value=(
             "`/testbienvenida` — Envía una prueba del embed de bienvenida al canal\n"
-            "`/editarbienvenida` — Edita el mensaje del canal de bienvenida\n"
-            "`/editardm` — Edita el mensaje de DM de bienvenida\n"
+            "`/editarbienvenida` — Edita el texto del canal de bienvenida\n"
+            "`/imagenesbienvenida` — Edita las imágenes del canal de bienvenida\n"
+            "`/editardm` — Edita el texto del DM de bienvenida\n"
+            "`/imagenesdm` — Edita las imágenes del DM de bienvenida\n"
             "`/recargar` — Recarga config.json sin reiniciar"
         ),
         inline=False,
@@ -489,7 +618,9 @@ async def ayuda(interaction: discord.Interaction) -> None:
 
 @testbienvenida.error
 @editarbienvenida.error
+@imagenesbienvenida.error
 @editardm.error
+@imagenesdm.error
 @recargar.error
 async def error_permisos(
     interaction: discord.Interaction,
