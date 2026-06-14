@@ -1,7 +1,7 @@
 {
   "_comentario": "Michigan RP Welcome Bot — Archivo de Configuración",
   "_nota": "El token va en la variable de entorno DISCORD_TOKEN, nunca aquí.",
-  "welcome_channel_id": "REEMPLAZA_CON_EL_ID_DE_TU_CANAL",
+  "welcome_channel_id": "1514879899960086629",
   "mensaje_estado": "Michigan RP | Nuevos Miembros Llegando",
   "welcome_embed": {
     "titulo": "¡Bienvenido a {server}, {username}! 🎉",
