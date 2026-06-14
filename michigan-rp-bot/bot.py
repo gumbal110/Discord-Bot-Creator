@@ -694,7 +694,7 @@ async def main():
         )
         raise SystemExit(1)
 
-    await keep_alive()
+    await keep_alive(puerto=8000)
     await bot.start(token)
 
 
