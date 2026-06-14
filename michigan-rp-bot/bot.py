@@ -554,6 +554,22 @@ async def imagenesdm(interaction: discord.Interaction) -> None:
     await interaction.response.send_modal(modal)
 
 
+@bot.tree.command(name="setcanal", description="Selecciona el canal donde aparecerán los mensajes de bienvenida.")
+@app_commands.checks.has_permissions(manage_guild=True)
+@app_commands.describe(canal="Canal de texto donde se enviarán las bienvenidas")
+async def setcanal(interaction: discord.Interaction, canal: discord.TextChannel) -> None:
+    """/setcanal — guarda el canal de bienvenida sin tocar config.json manualmente."""
+    bot.config["welcome_channel_id"] = str(canal.id)
+    guardar_config(bot.config)
+
+    await interaction.response.send_message(
+        f"✅ Canal de bienvenida establecido en {canal.mention}.\n"
+        f"Usa `/testbienvenida` para confirmar que todo se ve bien.",
+        ephemeral=True,
+    )
+    log.info("Canal de bienvenida cambiado a #%s (%s) por %s", canal.name, canal.id, interaction.user)
+
+
 @bot.tree.command(name="recargar", description="Recarga config.json sin reiniciar el bot.")
 @app_commands.checks.has_permissions(manage_guild=True)
 async def recargar(interaction: discord.Interaction) -> None:
@@ -586,6 +602,7 @@ async def ayuda(interaction: discord.Interaction) -> None:
     embed.add_field(
         name="🔧 Administración (requiere Gestionar Servidor)",
         value=(
+            "`/setcanal` — Selecciona el canal donde aparecen las bienvenidas\n"
             "`/testbienvenida` — Envía una prueba del embed de bienvenida al canal\n"
             "`/editarbienvenida` — Edita el texto del canal de bienvenida\n"
             "`/imagenesbienvenida` — Edita las imágenes del canal de bienvenida\n"
@@ -617,6 +634,7 @@ async def ayuda(interaction: discord.Interaction) -> None:
 # ---------------------------------------------------------------------------
 
 @testbienvenida.error
+@setcanal.error
 @editarbienvenida.error
 @imagenesbienvenida.error
 @editardm.error
