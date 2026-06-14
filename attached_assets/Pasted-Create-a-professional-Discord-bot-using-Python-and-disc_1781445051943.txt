@@ -1,0 +1,99 @@
+Create a professional Discord bot using Python and discord.py 2.x.
+
+Project Name: Michigan RP Welcome Bot
+
+Requirements:
+
+1. The bot must automatically welcome new members when they join the server.
+
+2. The welcome message must be sent in a configurable channel and use a beautiful Discord Embed.
+
+3. The bot must also send a private Direct Message (DM) to the new member.
+
+4. Both the Welcome Embed and the DM Embed must be fully configurable through a configuration file (config.json) without modifying the code.
+
+5. The embeds must support:
+
+   * Title
+   * Description
+   * Color
+   * Thumbnail URL
+   * Image/Banner URL
+   * Footer Text
+   * Footer Icon URL
+   * Author Name
+   * Author Icon URL
+   * Author URL
+
+6. The embeds should have a modern and professional design suitable for a serious Roleplay community.
+
+7. Create an organized project structure:
+
+   * bot.py
+   * config.json
+   * requirements.txt
+   * README.md
+
+8. The config.json file should include:
+
+   * Bot Token
+   * Welcome Channel ID
+   * Welcome Embed Settings
+   * DM Embed Settings
+
+9. Add slash commands:
+
+   /testwelcome
+
+   * Sends the welcome embed in the configured channel.
+
+   /testdm
+
+   * Sends the DM embed to the command user.
+
+   /reload
+
+   * Reloads config.json without restarting the bot.
+
+10. Use Discord Intents correctly and include proper error handling.
+
+11. If a DM cannot be sent, the bot should continue working without errors.
+
+12. Use environment variables for the bot token.
+
+13. Add detailed comments explaining every section of the code.
+
+14. The welcome embed should automatically mention the new member and display:
+
+* Username
+* Join Date
+* Member Count
+
+15. The bot should support placeholders:
+
+{user}
+{username}
+{member_count}
+{server}
+{mention}
+
+16. Make the embeds visually appealing:
+
+* Large banner support
+* Thumbnail support
+* Professional footer
+* Clean formatting
+* Good spacing
+
+17. Use embeds that look premium and modern rather than basic Discord embeds.
+
+18. Include a complete README explaining:
+
+* Installation
+* Configuration
+* Running the bot
+* Permissions required
+
+19. The final code must be production-ready, organized, optimized, and easy to maintain.
+
+20. Return the complete project with all files fully implemented.

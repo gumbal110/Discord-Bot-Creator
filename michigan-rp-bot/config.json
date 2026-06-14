@@ -1,0 +1,34 @@
+{
+  "_comment": "Michigan RP Welcome Bot — Configuration File",
+  "_note": "Set DISCORD_TOKEN as an environment variable, never put it here.",
+
+  "welcome_channel_id": "REPLACE_WITH_YOUR_CHANNEL_ID",
+
+  "status_message": "Michigan RP | New Members Arriving",
+
+  "welcome_embed": {
+    "title": "Welcome to {server}, {username}! 🎉",
+    "description": "Hey {mention}, we're thrilled to have you as our **{member_count}th member**!\n\nPlease take a moment to read our rules and get yourself set up. We hope you enjoy your time here.",
+    "color": "#E8A400",
+    "thumbnail_url": "https://i.imgur.com/your-server-icon.png",
+    "image_url": "https://i.imgur.com/your-welcome-banner.png",
+    "author_name": "Michigan RP Community",
+    "author_icon_url": "https://i.imgur.com/your-server-icon.png",
+    "author_url": "",
+    "footer_text": "Michigan RP • Joined {server}",
+    "footer_icon_url": "https://i.imgur.com/your-server-icon.png"
+  },
+
+  "dm_embed": {
+    "title": "Welcome to Michigan RP, {username}!",
+    "description": "Hey {mention} — thanks for joining **{server}**!\n\nHere's everything you need to get started:\n\n**📋 Read the Rules** — Keep things fair and fun for everyone.\n**🎭 Pick Your Roles** — Head to #roles and grab your interests.\n**💬 Introduce Yourself** — Say hi in #introductions!\n\nIf you have any questions, our staff team is always here to help. Enjoy your stay!",
+    "color": "#E8A400",
+    "thumbnail_url": "https://i.imgur.com/your-server-icon.png",
+    "image_url": "https://i.imgur.com/your-dm-banner.png",
+    "author_name": "Michigan RP Staff Team",
+    "author_icon_url": "https://i.imgur.com/your-server-icon.png",
+    "author_url": "",
+    "footer_text": "Michigan RP • We're glad you're here!",
+    "footer_icon_url": "https://i.imgur.com/your-server-icon.png"
+  }
+}
