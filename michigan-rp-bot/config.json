@@ -1,34 +1,34 @@
 {
-  "_comment": "Michigan RP Welcome Bot — Configuration File",
-  "_note": "Set DISCORD_TOKEN as an environment variable, never put it here.",
+  "_comentario": "Michigan RP Welcome Bot — Archivo de Configuración",
+  "_nota": "El token va en la variable de entorno DISCORD_TOKEN, nunca aquí.",
 
-  "welcome_channel_id": "REPLACE_WITH_YOUR_CHANNEL_ID",
+  "welcome_channel_id": "REEMPLAZA_CON_EL_ID_DE_TU_CANAL",
 
-  "status_message": "Michigan RP | New Members Arriving",
+  "mensaje_estado": "Michigan RP | Nuevos Miembros Llegando",
 
   "welcome_embed": {
-    "title": "Welcome to {server}, {username}! 🎉",
-    "description": "Hey {mention}, we're thrilled to have you as our **{member_count}th member**!\n\nPlease take a moment to read our rules and get yourself set up. We hope you enjoy your time here.",
+    "titulo": "¡Bienvenido a {server}, {username}! 🎉",
+    "descripcion": "Hola {mention}, ¡eres nuestro miembro número **{member_count}**!\n\nTómate un momento para leer las reglas y configurar tu perfil. Esperamos que disfrutes tu estancia aquí.",
     "color": "#E8A400",
-    "thumbnail_url": "https://i.imgur.com/your-server-icon.png",
-    "image_url": "https://i.imgur.com/your-welcome-banner.png",
-    "author_name": "Michigan RP Community",
-    "author_icon_url": "https://i.imgur.com/your-server-icon.png",
-    "author_url": "",
-    "footer_text": "Michigan RP • Joined {server}",
-    "footer_icon_url": "https://i.imgur.com/your-server-icon.png"
+    "url_miniatura": "https://i.imgur.com/your-server-icon.png",
+    "url_imagen": "https://i.imgur.com/your-welcome-banner.png",
+    "nombre_autor": "Comunidad Michigan RP",
+    "url_icono_autor": "https://i.imgur.com/your-server-icon.png",
+    "url_autor": "",
+    "texto_pie": "Michigan RP • Se unió a {server}",
+    "url_icono_pie": "https://i.imgur.com/your-server-icon.png"
   },
 
   "dm_embed": {
-    "title": "Welcome to Michigan RP, {username}!",
-    "description": "Hey {mention} — thanks for joining **{server}**!\n\nHere's everything you need to get started:\n\n**📋 Read the Rules** — Keep things fair and fun for everyone.\n**🎭 Pick Your Roles** — Head to #roles and grab your interests.\n**💬 Introduce Yourself** — Say hi in #introductions!\n\nIf you have any questions, our staff team is always here to help. Enjoy your stay!",
+    "titulo": "¡Bienvenido a Michigan RP, {username}!",
+    "descripcion": "Hola {mention} — ¡gracias por unirte a **{server}**!\n\nAquí tienes todo lo que necesitas para comenzar:\n\n**📋 Lee las Reglas** — Para que todos la pasemos bien.\n**🎭 Elige tus Roles** — Ve a #roles y selecciona tus intereses.\n**💬 Preséntate** — ¡Saluda en #presentaciones!\n\nSi tienes alguna pregunta, nuestro equipo de staff está siempre disponible. ¡Disfruta tu estadía!",
     "color": "#E8A400",
-    "thumbnail_url": "https://i.imgur.com/your-server-icon.png",
-    "image_url": "https://i.imgur.com/your-dm-banner.png",
-    "author_name": "Michigan RP Staff Team",
-    "author_icon_url": "https://i.imgur.com/your-server-icon.png",
-    "author_url": "",
-    "footer_text": "Michigan RP • We're glad you're here!",
-    "footer_icon_url": "https://i.imgur.com/your-server-icon.png"
+    "url_miniatura": "https://i.imgur.com/your-server-icon.png",
+    "url_imagen": "https://i.imgur.com/your-dm-banner.png",
+    "nombre_autor": "Equipo de Staff de Michigan RP",
+    "url_icono_autor": "https://i.imgur.com/your-server-icon.png",
+    "url_autor": "",
+    "texto_pie": "Michigan RP • ¡Nos alegra tenerte aquí!",
+    "url_icono_pie": "https://i.imgur.com/your-server-icon.png"
   }
 }

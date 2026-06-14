@@ -1,9 +1,9 @@
 """
 Michigan RP Welcome Bot
 =======================
-A professional Discord bot for the Michigan RP community.
-Automatically welcomes new members via channel embeds and DMs,
-with full slash-command support and live config reloading.
+Bot profesional de bienvenida para la comunidad Michigan RP.
+Da la bienvenida automáticamente a nuevos miembros mediante embeds
+en el canal configurado y por DM, con soporte completo de comandos slash.
 """
 
 import discord
@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# Logging setup — writes to console with timestamp + level
+# Configuración del sistema de logs
 # ---------------------------------------------------------------------------
 logging.basicConfig(
     level=logging.INFO,
@@ -26,103 +26,108 @@ logging.basicConfig(
 log = logging.getLogger("MichiganRPBot")
 
 # ---------------------------------------------------------------------------
-# Config helpers
+# Ruta al archivo de configuración
 # ---------------------------------------------------------------------------
-CONFIG_PATH = Path(__file__).parent / "config.json"
+RUTA_CONFIG = Path(__file__).parent / "config.json"
 
 
-def load_config() -> dict:
-    """Load and return the config.json file as a dictionary."""
-    with open(CONFIG_PATH, "r", encoding="utf-8") as fh:
-        return json.load(fh)
+def cargar_config() -> dict:
+    """Carga y retorna el archivo config.json como diccionario."""
+    with open(RUTA_CONFIG, "r", encoding="utf-8") as archivo:
+        return json.load(archivo)
 
 
-def resolve_placeholders(text: str, member: discord.Member) -> str:
+def guardar_config(config: dict) -> None:
+    """Guarda el diccionario de configuración en config.json."""
+    with open(RUTA_CONFIG, "w", encoding="utf-8") as archivo:
+        json.dump(config, archivo, indent=2, ensure_ascii=False)
+
+
+def reemplazar_variables(texto: str, miembro: discord.Member) -> str:
     """
-    Replace placeholder tokens inside embed text fields with real values.
+    Reemplaza las variables de texto con datos reales del miembro.
 
-    Supported placeholders:
-      {user}         — e.g. "CoolUser#1234"
-      {username}     — display / global name, e.g. "CoolUser"
-      {member_count} — total member count of the guild
-      {server}       — guild name
-      {mention}      — @mention string
+    Variables disponibles:
+      {user}          — usuario completo, ej: "MiUsuario#1234"
+      {username}      — nombre de display, ej: "MiUsuario"
+      {member_count}  — cantidad total de miembros del servidor
+      {server}        — nombre del servidor
+      {mention}       — mención @usuario
     """
     return (
-        text.replace("{user}", str(member))
-            .replace("{username}", member.display_name)
-            .replace("{member_count}", str(member.guild.member_count))
-            .replace("{server}", member.guild.name)
-            .replace("{mention}", member.mention)
+        texto.replace("{user}", str(miembro))
+             .replace("{username}", miembro.display_name)
+             .replace("{member_count}", str(miembro.guild.member_count))
+             .replace("{server}", miembro.guild.name)
+             .replace("{mention}", miembro.mention)
     )
 
 
-def build_embed(embed_cfg: dict, member: discord.Member) -> discord.Embed:
+def construir_embed(config_embed: dict, miembro: discord.Member) -> discord.Embed:
     """
-    Construct a discord.Embed from an embed configuration block.
+    Construye un discord.Embed a partir de un bloque de configuración.
 
-    The configuration block supports the following keys (all optional except
-    where noted):
-      title, description, color (hex string like "#FF0000"),
-      thumbnail_url, image_url,
-      footer_text, footer_icon_url,
-      author_name, author_icon_url, author_url
+    Claves soportadas (todas opcionales):
+      titulo, descripcion, color (hex como "#FF0000"),
+      url_miniatura, url_imagen,
+      texto_pie, url_icono_pie,
+      nombre_autor, url_icono_autor, url_autor
     """
     # --- Color -----------------------------------------------------------
-    raw_color = embed_cfg.get("color", "#2b2d31")
+    color_raw = config_embed.get("color", "#2b2d31")
     try:
-        color = discord.Color(int(raw_color.lstrip("#"), 16))
+        color = discord.Color(int(color_raw.lstrip("#"), 16))
     except (ValueError, AttributeError):
         color = discord.Color.blurple()
 
-    # --- Core fields -----------------------------------------------------
-    title = resolve_placeholders(embed_cfg.get("title", ""), member)
-    description = resolve_placeholders(embed_cfg.get("description", ""), member)
+    # --- Campos principales ----------------------------------------------
+    titulo = reemplazar_variables(config_embed.get("titulo", ""), miembro)
+    descripcion = reemplazar_variables(config_embed.get("descripcion", ""), miembro)
 
     embed = discord.Embed(
-        title=title or None,
-        description=description or None,
+        title=titulo or None,
+        description=descripcion or None,
         color=color,
         timestamp=datetime.now(timezone.utc),
     )
 
-    # --- Author ----------------------------------------------------------
-    author_name = resolve_placeholders(embed_cfg.get("author_name", ""), member)
-    if author_name:
+    # --- Autor -----------------------------------------------------------
+    nombre_autor = reemplazar_variables(config_embed.get("nombre_autor", ""), miembro)
+    if nombre_autor:
         embed.set_author(
-            name=author_name,
-            icon_url=embed_cfg.get("author_icon_url") or None,
-            url=embed_cfg.get("author_url") or None,
+            name=nombre_autor,
+            icon_url=config_embed.get("url_icono_autor") or None,
+            url=config_embed.get("url_autor") or None,
         )
 
-    # --- Thumbnail -------------------------------------------------------
-    thumb = embed_cfg.get("thumbnail_url", "")
-    if thumb:
-        embed.set_thumbnail(url=thumb)
+    # --- Miniatura -------------------------------------------------------
+    miniatura = config_embed.get("url_miniatura", "")
+    if miniatura:
+        embed.set_thumbnail(url=miniatura)
 
-    # --- Large image / banner -------------------------------------------
-    image = embed_cfg.get("image_url", "")
-    if image:
-        embed.set_image(url=image)
+    # --- Imagen / Banner grande ------------------------------------------
+    imagen = config_embed.get("url_imagen", "")
+    if imagen:
+        embed.set_image(url=imagen)
 
-    # --- Footer ----------------------------------------------------------
-    footer_text = resolve_placeholders(embed_cfg.get("footer_text", ""), member)
-    if footer_text:
+    # --- Pie de página ---------------------------------------------------
+    texto_pie = reemplazar_variables(config_embed.get("texto_pie", ""), miembro)
+    if texto_pie:
         embed.set_footer(
-            text=footer_text,
-            icon_url=embed_cfg.get("footer_icon_url") or None,
+            text=texto_pie,
+            icon_url=config_embed.get("url_icono_pie") or None,
         )
 
-    # --- Extra dynamic fields added automatically -----------------------
-    embed.add_field(name="Username", value=member.mention, inline=True)
+    # --- Campos dinámicos automáticos ------------------------------------
+    embed.add_field(name="👤 Usuario", value=miembro.mention, inline=True)
     embed.add_field(
-        name="Joined",
-        value=f"<t:{int(member.joined_at.timestamp())}:R>" if member.joined_at else "Just now",
+        name="📅 Se unió",
+        value=f"<t:{int(miembro.joined_at.timestamp())}:R>" if miembro.joined_at else "Ahora mismo",
         inline=True,
     )
     embed.add_field(
-        name="Member Count",
-        value=f"#{member.guild.member_count}",
+        name="👥 Miembro",
+        value=f"#{miembro.guild.member_count}",
         inline=True,
     )
 
@@ -130,36 +135,180 @@ def build_embed(embed_cfg: dict, member: discord.Member) -> discord.Embed:
 
 
 # ---------------------------------------------------------------------------
-# Bot setup
+# Modales para editar los embeds desde Discord
 # ---------------------------------------------------------------------------
 
-# Intents — member events require the privileged "members" intent which must
-# be enabled in the Discord Developer Portal under "Privileged Gateway Intents".
+class ModalEditarBienvenida(discord.ui.Modal, title="✏️ Editar Mensaje de Bienvenida"):
+    """Formulario para editar el embed del canal de bienvenida."""
+
+    titulo_embed = discord.ui.TextInput(
+        label="Título",
+        placeholder="¡Bienvenido a {server}, {username}!",
+        required=False,
+        max_length=256,
+    )
+    descripcion_embed = discord.ui.TextInput(
+        label="Descripción",
+        placeholder="Hola {mention}, eres el miembro #{member_count}...",
+        required=False,
+        style=discord.TextStyle.paragraph,
+        max_length=2000,
+    )
+    color_embed = discord.ui.TextInput(
+        label="Color (hex)",
+        placeholder="#E8A400",
+        required=False,
+        max_length=7,
+    )
+    texto_pie_embed = discord.ui.TextInput(
+        label="Texto del pie de página",
+        placeholder="Michigan RP • {server}",
+        required=False,
+        max_length=200,
+    )
+    nombre_autor_embed = discord.ui.TextInput(
+        label="Nombre del autor",
+        placeholder="Michigan RP Community",
+        required=False,
+        max_length=256,
+    )
+
+    def __init__(self, config_actual: dict):
+        super().__init__()
+        embed = config_actual.get("welcome_embed", {})
+        # Pre-rellenar los campos con los valores actuales
+        self.titulo_embed.default = embed.get("titulo", "")
+        self.descripcion_embed.default = embed.get("descripcion", "")
+        self.color_embed.default = embed.get("color", "#E8A400")
+        self.texto_pie_embed.default = embed.get("texto_pie", "")
+        self.nombre_autor_embed.default = embed.get("nombre_autor", "")
+        self._config = config_actual
+
+    async def on_submit(self, interaction: discord.Interaction):
+        embed_cfg = self._config.setdefault("welcome_embed", {})
+
+        if self.titulo_embed.value:
+            embed_cfg["titulo"] = self.titulo_embed.value
+        if self.descripcion_embed.value:
+            embed_cfg["descripcion"] = self.descripcion_embed.value
+        if self.color_embed.value:
+            embed_cfg["color"] = self.color_embed.value
+        if self.texto_pie_embed.value:
+            embed_cfg["texto_pie"] = self.texto_pie_embed.value
+        if self.nombre_autor_embed.value:
+            embed_cfg["nombre_autor"] = self.nombre_autor_embed.value
+
+        guardar_config(self._config)
+        interaction.client.config = self._config
+
+        await interaction.response.send_message(
+            "✅ **Mensaje de bienvenida actualizado.** Usa `/testbienvenida` para previsualizarlo.",
+            ephemeral=True,
+        )
+        log.info("Embed de bienvenida editado por %s", interaction.user)
+
+
+class ModalEditarDM(discord.ui.Modal, title="✏️ Editar Mensaje de DM"):
+    """Formulario para editar el embed que se envía por DM al nuevo miembro."""
+
+    titulo_embed = discord.ui.TextInput(
+        label="Título",
+        placeholder="¡Bienvenido a Michigan RP, {username}!",
+        required=False,
+        max_length=256,
+    )
+    descripcion_embed = discord.ui.TextInput(
+        label="Descripción",
+        placeholder="Hola {mention}, bienvenido a {server}...",
+        required=False,
+        style=discord.TextStyle.paragraph,
+        max_length=2000,
+    )
+    color_embed = discord.ui.TextInput(
+        label="Color (hex)",
+        placeholder="#E8A400",
+        required=False,
+        max_length=7,
+    )
+    texto_pie_embed = discord.ui.TextInput(
+        label="Texto del pie de página",
+        placeholder="Michigan RP • ¡Nos alegra tenerte aquí!",
+        required=False,
+        max_length=200,
+    )
+    nombre_autor_embed = discord.ui.TextInput(
+        label="Nombre del autor",
+        placeholder="Equipo de Staff de Michigan RP",
+        required=False,
+        max_length=256,
+    )
+
+    def __init__(self, config_actual: dict):
+        super().__init__()
+        embed = config_actual.get("dm_embed", {})
+        # Pre-rellenar los campos con los valores actuales
+        self.titulo_embed.default = embed.get("titulo", "")
+        self.descripcion_embed.default = embed.get("descripcion", "")
+        self.color_embed.default = embed.get("color", "#E8A400")
+        self.texto_pie_embed.default = embed.get("texto_pie", "")
+        self.nombre_autor_embed.default = embed.get("nombre_autor", "")
+        self._config = config_actual
+
+    async def on_submit(self, interaction: discord.Interaction):
+        embed_cfg = self._config.setdefault("dm_embed", {})
+
+        if self.titulo_embed.value:
+            embed_cfg["titulo"] = self.titulo_embed.value
+        if self.descripcion_embed.value:
+            embed_cfg["descripcion"] = self.descripcion_embed.value
+        if self.color_embed.value:
+            embed_cfg["color"] = self.color_embed.value
+        if self.texto_pie_embed.value:
+            embed_cfg["texto_pie"] = self.texto_pie_embed.value
+        if self.nombre_autor_embed.value:
+            embed_cfg["nombre_autor"] = self.nombre_autor_embed.value
+
+        guardar_config(self._config)
+        interaction.client.config = self._config
+
+        await interaction.response.send_message(
+            "✅ **Mensaje de DM actualizado.** Usa `/testdm` para previsualizarlo.",
+            ephemeral=True,
+        )
+        log.info("Embed de DM editado por %s", interaction.user)
+
+
+# ---------------------------------------------------------------------------
+# Configuración del bot
+# ---------------------------------------------------------------------------
+
+# Intents — el intent de miembros es privilegiado y debe activarse
+# manualmente en el Discord Developer Portal bajo "Privileged Gateway Intents".
 intents = discord.Intents.default()
-intents.members = True          # on_member_join / guild.member_count
-intents.message_content = False # not needed for slash commands
+intents.members = True           # Necesario para on_member_join y member_count
+intents.message_content = False  # No se necesita para comandos slash
 
 
 class MichiganRPBot(commands.Bot):
-    """Custom Bot subclass that holds the live config and syncs the command tree."""
+    """Subclase personalizada del Bot que gestiona la config en tiempo real."""
 
     def __init__(self):
         super().__init__(command_prefix="!", intents=intents)
         self.config: dict = {}
 
     async def setup_hook(self) -> None:
-        """Called once after login; syncs slash commands to Discord."""
-        self.config = load_config()
-        log.info("Config loaded.")
+        """Se ejecuta una vez al iniciar sesión; sincroniza los comandos slash."""
+        self.config = cargar_config()
+        log.info("Configuración cargada.")
         await self.tree.sync()
-        log.info("Slash commands synced.")
+        log.info("Comandos slash sincronizados.")
 
     async def on_ready(self) -> None:
-        log.info("Logged in as %s (ID: %s)", self.user, self.user.id)
+        log.info("Conectado como %s (ID: %s)", self.user, self.user.id)
         await self.change_presence(
             activity=discord.Activity(
                 type=discord.ActivityType.watching,
-                name=self.config.get("status_message", "Michigan RP"),
+                name=self.config.get("mensaje_estado", "Michigan RP"),
             )
         )
 
@@ -168,168 +317,209 @@ bot = MichiganRPBot()
 
 
 # ---------------------------------------------------------------------------
-# Event: on_member_join
+# Evento: on_member_join — se dispara cuando alguien entra al servidor
 # ---------------------------------------------------------------------------
 
 @bot.event
-async def on_member_join(member: discord.Member) -> None:
+async def on_member_join(miembro: discord.Member) -> None:
     """
-    Fires when a new member joins the guild.
-    1. Sends the welcome embed to the configured channel.
-    2. Attempts to DM the new member.
+    Se activa cuando un nuevo miembro entra al servidor.
+    1. Envía el embed de bienvenida al canal configurado.
+    2. Intenta enviar el embed de bienvenida por DM al nuevo miembro.
     """
     cfg = bot.config
 
-    # --- Channel welcome embed ------------------------------------------
-    channel_id = cfg.get("welcome_channel_id")
-    if channel_id:
-        channel = member.guild.get_channel(int(channel_id))
-        if channel:
+    # --- Embed en el canal de bienvenida ---------------------------------
+    canal_id = cfg.get("welcome_channel_id")
+    if canal_id:
+        canal = miembro.guild.get_channel(int(canal_id))
+        if canal:
             try:
-                embed = build_embed(cfg.get("welcome_embed", {}), member)
-                await channel.send(
-                    content=member.mention,   # ping so the member is notified
-                    embed=embed,
-                )
-                log.info("Sent welcome embed for %s in #%s", member, channel.name)
+                embed = construir_embed(cfg.get("welcome_embed", {}), miembro)
+                await canal.send(content=miembro.mention, embed=embed)
+                log.info("Embed de bienvenida enviado para %s en #%s", miembro, canal.name)
             except discord.Forbidden:
-                log.warning("Missing permissions to send in channel %s", channel_id)
-            except Exception as exc:
-                log.error("Failed to send channel welcome: %s", exc)
+                log.warning("Sin permisos para enviar en el canal %s", canal_id)
+            except Exception as error:
+                log.error("Error al enviar embed de bienvenida: %s", error)
         else:
-            log.warning("Welcome channel ID %s not found in this guild.", channel_id)
+            log.warning("Canal de bienvenida con ID %s no encontrado.", canal_id)
 
-    # --- DM embed -------------------------------------------------------
+    # --- Embed por DM ----------------------------------------------------
     try:
-        dm_embed = build_embed(cfg.get("dm_embed", {}), member)
-        await member.send(embed=dm_embed)
-        log.info("Sent DM embed to %s", member)
+        embed_dm = construir_embed(cfg.get("dm_embed", {}), miembro)
+        await miembro.send(embed=embed_dm)
+        log.info("DM enviado a %s", miembro)
     except discord.Forbidden:
-        # DMs disabled by user — expected; keep the bot running normally
-        log.info("Could not DM %s (DMs disabled).", member)
-    except Exception as exc:
-        log.error("Unexpected error while DMing %s: %s", member, exc)
+        # El usuario tiene los DMs desactivados — se registra y continúa
+        log.info("No se pudo enviar DM a %s (DMs desactivados).", miembro)
+    except Exception as error:
+        log.error("Error inesperado al enviar DM a %s: %s", miembro, error)
 
 
 # ---------------------------------------------------------------------------
-# Slash commands
+# Comandos Slash
 # ---------------------------------------------------------------------------
 
-@bot.tree.command(name="testwelcome", description="Send a test welcome embed in the configured channel.")
+@bot.tree.command(name="testbienvenida", description="Envía un embed de bienvenida de prueba en el canal configurado.")
 @app_commands.checks.has_permissions(manage_guild=True)
-async def testwelcome(interaction: discord.Interaction) -> None:
-    """
-    /testwelcome — sends the welcome embed to the configured channel
-    as if the command user had just joined, so staff can preview the output.
-    """
+async def testbienvenida(interaction: discord.Interaction) -> None:
+    """/testbienvenida — envía el embed de bienvenida al canal configurado como prueba."""
     cfg = bot.config
-    channel_id = cfg.get("welcome_channel_id")
+    canal_id = cfg.get("welcome_channel_id")
 
-    if not channel_id:
+    if not canal_id:
         await interaction.response.send_message(
-            "❌ No `welcome_channel_id` set in config.json.", ephemeral=True
+            "❌ No hay ningún `welcome_channel_id` configurado en config.json.", ephemeral=True
         )
         return
 
-    channel = interaction.guild.get_channel(int(channel_id))
-    if not channel:
+    canal = interaction.guild.get_channel(int(canal_id))
+    if not canal:
         await interaction.response.send_message(
-            f"❌ Channel `{channel_id}` not found in this server.", ephemeral=True
+            f"❌ No se encontró el canal con ID `{canal_id}` en este servidor.", ephemeral=True
         )
         return
 
     try:
-        embed = build_embed(cfg.get("welcome_embed", {}), interaction.user)
-        await channel.send(content=interaction.user.mention, embed=embed)
+        embed = construir_embed(cfg.get("welcome_embed", {}), interaction.user)
+        await canal.send(content=interaction.user.mention, embed=embed)
         await interaction.response.send_message(
-            f"✅ Test welcome embed sent to {channel.mention}.", ephemeral=True
+            f"✅ Embed de bienvenida de prueba enviado en {canal.mention}.", ephemeral=True
         )
     except discord.Forbidden:
         await interaction.response.send_message(
-            "❌ I don't have permission to send messages in that channel.", ephemeral=True
+            "❌ No tengo permiso para enviar mensajes en ese canal.", ephemeral=True
         )
 
 
-@bot.tree.command(name="testdm", description="Send a test DM embed to yourself.")
+@bot.tree.command(name="testdm", description="Te envía el embed de DM de bienvenida a ti mismo.")
 async def testdm(interaction: discord.Interaction) -> None:
-    """
-    /testdm — sends the DM welcome embed directly to the command user
-    so they can preview what new members will receive.
-    """
+    """/testdm — envía el embed de DM directamente a quien ejecuta el comando."""
     cfg = bot.config
 
     try:
-        dm_embed = build_embed(cfg.get("dm_embed", {}), interaction.user)
-        await interaction.user.send(embed=dm_embed)
+        embed_dm = construir_embed(cfg.get("dm_embed", {}), interaction.user)
+        await interaction.user.send(embed=embed_dm)
         await interaction.response.send_message(
-            "✅ Test DM sent — check your Direct Messages!", ephemeral=True
+            "✅ DM de prueba enviado. ¡Revisa tus Mensajes Directos!", ephemeral=True
         )
     except discord.Forbidden:
         await interaction.response.send_message(
-            "❌ I couldn't DM you. Please enable DMs from server members in your Privacy Settings.",
+            "❌ No pude enviarte el DM. Activa los DMs de miembros del servidor en tu Configuración de Privacidad.",
             ephemeral=True,
         )
 
 
-@bot.tree.command(name="reload", description="Reload config.json without restarting the bot.")
+@bot.tree.command(name="editarbienvenida", description="Edita el mensaje embed del canal de bienvenida.")
 @app_commands.checks.has_permissions(manage_guild=True)
-async def reload_config(interaction: discord.Interaction) -> None:
-    """
-    /reload — hot-reloads config.json at runtime.
-    Useful for updating embed text, colors, or channel IDs without a restart.
-    """
+async def editarbienvenida(interaction: discord.Interaction) -> None:
+    """/editarbienvenida — abre un formulario para editar el embed del canal de bienvenida."""
+    modal = ModalEditarBienvenida(bot.config)
+    await interaction.response.send_modal(modal)
+
+
+@bot.tree.command(name="editardm", description="Edita el mensaje embed que se envía por DM a nuevos miembros.")
+@app_commands.checks.has_permissions(manage_guild=True)
+async def editardm(interaction: discord.Interaction) -> None:
+    """/editardm — abre un formulario para editar el embed de DM de bienvenida."""
+    modal = ModalEditarDM(bot.config)
+    await interaction.response.send_modal(modal)
+
+
+@bot.tree.command(name="recargar", description="Recarga config.json sin reiniciar el bot.")
+@app_commands.checks.has_permissions(manage_guild=True)
+async def recargar(interaction: discord.Interaction) -> None:
+    """/recargar — recarga config.json en tiempo real sin necesidad de reiniciar."""
     try:
-        bot.config = load_config()
-        log.info("Config reloaded by %s", interaction.user)
+        bot.config = cargar_config()
+        log.info("Configuración recargada por %s", interaction.user)
         await interaction.response.send_message(
-            "✅ `config.json` reloaded successfully.", ephemeral=True
+            "✅ `config.json` recargado correctamente.", ephemeral=True
         )
     except FileNotFoundError:
         await interaction.response.send_message(
-            "❌ `config.json` not found.", ephemeral=True
+            "❌ No se encontró `config.json`.", ephemeral=True
         )
-    except json.JSONDecodeError as exc:
+    except json.JSONDecodeError as error:
         await interaction.response.send_message(
-            f"❌ JSON parse error in `config.json`: `{exc}`", ephemeral=True
+            f"❌ Error de formato JSON en `config.json`: `{error}`", ephemeral=True
         )
 
 
+@bot.tree.command(name="ayuda", description="Muestra todos los comandos disponibles del bot.")
+async def ayuda(interaction: discord.Interaction) -> None:
+    """/ayuda — muestra una lista de todos los comandos disponibles."""
+    embed = discord.Embed(
+        title="📋 Comandos de Michigan RP Bot",
+        description="Lista de todos los comandos disponibles:",
+        color=discord.Color(0xE8A400),
+        timestamp=datetime.now(timezone.utc),
+    )
+    embed.add_field(
+        name="🔧 Administración (requiere Gestionar Servidor)",
+        value=(
+            "`/testbienvenida` — Envía una prueba del embed de bienvenida al canal\n"
+            "`/editarbienvenida` — Edita el mensaje del canal de bienvenida\n"
+            "`/editardm` — Edita el mensaje de DM de bienvenida\n"
+            "`/recargar` — Recarga config.json sin reiniciar"
+        ),
+        inline=False,
+    )
+    embed.add_field(
+        name="👤 Para todos",
+        value=(
+            "`/testdm` — Te envía el DM de bienvenida a ti mismo\n"
+            "`/ayuda` — Muestra este mensaje"
+        ),
+        inline=False,
+    )
+    embed.add_field(
+        name="📝 Variables disponibles en los mensajes",
+        value="`{user}` `{username}` `{mention}` `{member_count}` `{server}`",
+        inline=False,
+    )
+    embed.set_footer(text="Michigan RP Bot")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
 # ---------------------------------------------------------------------------
-# Error handlers for slash command permission checks
+# Manejador de errores de permisos para comandos de administración
 # ---------------------------------------------------------------------------
 
-@testwelcome.error
-@reload_config.error
-async def admin_command_error(
+@testbienvenida.error
+@editarbienvenida.error
+@editardm.error
+@recargar.error
+async def error_permisos(
     interaction: discord.Interaction,
     error: app_commands.AppCommandError,
 ) -> None:
     if isinstance(error, app_commands.MissingPermissions):
         await interaction.response.send_message(
-            "❌ You need **Manage Server** permission to use this command.",
+            "❌ Necesitas el permiso **Gestionar Servidor** para usar este comando.",
             ephemeral=True,
         )
     else:
-        log.error("Unhandled command error: %s", error)
+        log.error("Error no manejado en comando: %s", error)
         await interaction.response.send_message(
-            "❌ An unexpected error occurred.", ephemeral=True
+            "❌ Ocurrió un error inesperado.", ephemeral=True
         )
 
 
 # ---------------------------------------------------------------------------
-# Entry point
+# Punto de entrada
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    # The bot token is read from the DISCORD_TOKEN environment variable.
-    # Never hard-code your token — set it via a .env file or your hosting
-    # platform's secrets manager.
+    # El token se lee desde la variable de entorno DISCORD_TOKEN.
+    # Nunca escribas el token directamente en el código.
     token = os.environ.get("DISCORD_TOKEN")
     if not token:
         log.critical(
-            "DISCORD_TOKEN environment variable is not set. "
-            "Set it before running the bot."
+            "La variable de entorno DISCORD_TOKEN no está definida. "
+            "Configúrala antes de iniciar el bot."
         )
         raise SystemExit(1)
 
-    bot.run(token, log_handler=None)  # log_handler=None keeps our custom logger
+    bot.run(token, log_handler=None)
